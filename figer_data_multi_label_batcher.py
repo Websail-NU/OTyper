@@ -47,11 +47,6 @@ class figer_data_multi_label:
 
 
     def load_data(self, entity_file, context_file, feature_file, entity_type_feature_file, entity_type_exact_feature_file, type_file, window_size = 10):
-        with open('all_types.txt', 'r') as f:
-            self.all_types = [data.replace('\n','') for data in f]
-        with open('held_out_types.txt', 'r') as f:
-            self.held_out_types = [data.replace('\n','') for data in f]
-
 
         self.Entity_var_ids = []
         with open(entity_file, 'r') as f:
