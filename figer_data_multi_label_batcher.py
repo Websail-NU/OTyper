@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from sklearn.externals import joblib
 
 
 class Vocabulary:
@@ -90,7 +91,7 @@ class figer_data_multi_label:
         for i in range(0, self.Type_only_features.shape[0]):
             self.Type_only_features[i][0] = np.log(self.Type_only_features[i][0]+1.0)
 
-        self.r = range(0, len(self.Entity_var_ids))
+        self.r = list(range(0, len(self.Entity_var_ids)))
 
         if self.shuffle_flag == 1:
             self.shuffle()
@@ -232,7 +233,23 @@ def vstack_list_padding_2d(data, padding_element = 0, dtype=np.int32):
     return arr, np.array(lengths, dtype=np.int32)
 
 
+def get_an_example():
+    a = figer_data_multi_label()
+    ret = a.next_batch(list(range(0, 113)))
+    print('entity')
+    print(' '.join(a.vob.i2w(int(e)) for e in ret[0][2]))
+    # print(ret[-1][0])
+    print('left context')
+    print(' '.join(a.vob.i2w(int(e)) for e in ret[2][2]))
+    print('right context')
+    print(' '.join(a.vob.i2w(int(e)) for e in ret[4][2]))
+    print('type')
+    dicts = joblib.load('/home/zys133/knowledge_base/NFGEC/data/Wiki/dicts_figer.pkl')
+    for i in range(0, 113):
+        if ret[-1][2][i] == 1:
+            print(dicts['id2label'][i])
+
+
 
 if __name__ == "__main__":
-    a = figer_data_multi_label()
-    a.next_batch(list(range(0, 113)))
+    get_an_example()

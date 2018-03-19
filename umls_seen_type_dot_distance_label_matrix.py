@@ -4,7 +4,7 @@ import umls_data_batcher
 from operator import itemgetter
 import evaluate
 from sklearn.externals import joblib
-import cPickle as pickle
+import pickle
 import argparse
 import sys
 import data_utility
@@ -19,9 +19,22 @@ def umls_seen_type_dot_distance_label_matrix():
         f.write('{}\n'.format(log_head))
 
 
-    seen_label_ids = range(0, 1387)
-    dev_unseen_label_ids = range(0, 1387)
-    test_unseen_label_ids = range(0, 1387)
+    if id_select_flag == 0:
+        seen_label_ids = list(range(0, 800))
+        dev_unseen_label_ids = list(range(0, 800))
+        test_unseen_label_ids = list(range(800, 1387))
+    elif id_select_flag == 2:
+        seen_label_ids = list(range(0, 1387))
+        dev_unseen_label_ids = list(range(0, 1387))
+        test_unseen_label_ids = list(range(0, 1387))
+    elif id_select_flag >= 10 and id_select_flag < 20:
+        train_ids, dev_ids, test_ids = get_CV_info('CV_output_MSH.txt')
+        cv_id = id_select_flag % 10
+
+        seen_label_ids = train_ids[cv_id]
+        dev_unseen_label_ids = dev_ids[cv_id]
+        test_unseen_label_ids = test_ids[cv_id]
+
 
     seen_label_ids = np.sort(seen_label_ids)
     dev_unseen_label_ids = np.sort(dev_unseen_label_ids)
@@ -52,9 +65,18 @@ def umls_seen_type_dot_distance_label_matrix():
                     type_only_feature_flag=type_only_feature_flag)
 
 
-    figer = umls_data_batcher.umls_data_multi_label()
-    figer_dev = umls_data_batcher.umls_data_multi_label()
-    figer_test = umls_data_batcher.umls_data_multi_label()
+    umls_train = umls_data_batcher.umls_data_multi_label(entity_file = 'umls_data/train_refined_umls_word.txt', \
+                    context_file = 'umls_data/train_refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'umls_data/train_umls_exact_et_features.npy', \
+                    type_file = 'umls_data/train_umls_Types_with_context.npy')
+    umls_test = umls_data_batcher.umls_data_multi_label(entity_file = 'umls_data/test_refined_umls_word.txt', \
+                    context_file = 'umls_data/test_refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'umls_data/test_umls_exact_et_features.npy', \
+                    type_file = 'umls_data/test_umls_Types_with_context.npy')
+    umls_dev = umls_data_batcher.umls_data_multi_label(entity_file = 'umls_data/dev_refined_umls_word.txt', \
+                    context_file = 'umls_data/dev_refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'umls_data/dev_umls_exact_et_features.npy', \
+                    type_file = 'umls_data/dev_umls_Types_with_context.npy')
 
 
     training_F1s = []
@@ -63,19 +85,19 @@ def umls_seen_type_dot_distance_label_matrix():
 
     config = tf.ConfigProto(
         device_count = {'GPU': 0},
-        intra_op_parallelism_threads=24,
-        inter_op_parallelism_threads=24
+        intra_op_parallelism_threads=16,
+        inter_op_parallelism_threads=16
     )
     type_f1_info = []
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         for epoch in range(0, 5):
-            figer.shuffle()
+            umls_train.shuffle()
             epoch_type_f1_info = data_utility.type_f1s()
-            for i in range(0, 370):
-                batch_data = figer.next_batch(seen_label_ids)
-                # if i in range(300, 370):
-                #     continue
+            for i in range(0, 296):
+            # for i in range(0, 2):
+                batch_data = umls_train.next_batch(seen_label_ids)
+
                 feed_dict = dict(zip(train_placeholders, list(batch_data) + list([0.5]) + list([0.0])))
 
                 _, print_loss = sess.run([train_train_step, train_loss], feed_dict)
@@ -84,101 +106,67 @@ def umls_seen_type_dot_distance_label_matrix():
                     f.write('training epoch: {} batch {} : {}\n'.format(epoch, i, print_loss))
 
             # training performance
-            # predict_ys = np.zeros([0, len(seen_label_ids)])
-            # truth_ys = np.zeros([0, len(seen_label_ids)])
-            # for i in range(0, 370):
-            #     batch_data = figer.next_batch(seen_label_ids)
-            #     feed_dict = dict(zip(train_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
-            #     print_predict_y = sess.run(train_predict_y, feed_dict)
-            #     predict_ys = np.vstack((predict_ys, print_predict_y))
-            #     truth_ys = np.vstack((truth_ys, batch_data[-1]))
-            #     with open('temp.txt', 'w') as f:
-            #         f.write('testing train batch {} : {}\n'.format(i, print_loss))
-            #
-            # F1, train_type_f1s, train_F1_num = evaluate.acc_hook_f1_break_down(predict_ys, truth_ys, epoch, 1, log_path)
-            # training_F1s.append(F1)
-            # epoch_type_f1_info.add_f1s(seen_label_ids, train_type_f1s, train_F1_num, 0)
+
+            predict_ys = np.zeros([0, len(seen_label_ids)])
+            truth_ys = np.zeros([0, len(seen_label_ids)])
+            for i in range(0, 296):
+            # for i in range(0, 2):
+                batch_data = umls_train.next_batch(seen_label_ids)
+                feed_dict = dict(zip(train_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
+                print_predict_y = sess.run(train_predict_y, feed_dict)
+                predict_ys = np.vstack((predict_ys, print_predict_y))
+                truth_ys = np.vstack((truth_ys, batch_data[-1]))
+                with open('temp.txt', 'w') as f:
+                    f.write('testing train batch {} : {}\n'.format(i, print_loss))
+
+            F1, train_type_f1s, train_F1_num = evaluate.acc_hook_f1_break_down(predict_ys, truth_ys, epoch, 1, log_path)
+            training_F1s.append(F1)
+            epoch_type_f1_info.add_f1s(seen_label_ids, train_type_f1s, train_F1_num, 0)
 
 
             # dev performance
-            # predict_ys = np.zeros([0, len(dev_unseen_label_ids)])
-            # truth_ys = np.zeros([0, len(dev_unseen_label_ids)])
-            # for i in range(0, 370):
-            #     batch_data = figer_dev.next_batch(dev_unseen_label_ids)
-            #     feed_dict = dict(zip(dev_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
-            #     print_predict_y = sess.run(dev_predict_y, feed_dict)
-            #     predict_ys = np.vstack((predict_ys, print_predict_y))
-            #     truth_ys = np.vstack((truth_ys, batch_data[-1]))
-            #     with open('temp.txt', 'w') as f:
-            #         f.write('testing dev batch {} : {}\n'.format(i, print_loss))
-            # F1, dev_type_f1s, dev_F1_num = evaluate.acc_hook_f1_break_down(predict_ys, truth_ys, epoch, 2, log_path)
-            # dev_F1s.append(F1)
-            # epoch_type_f1_info.add_f1s(dev_unseen_label_ids, dev_type_f1s, dev_F1_num, 1)
+
+            predict_ys = np.zeros([0, len(dev_unseen_label_ids)])
+            truth_ys = np.zeros([0, len(dev_unseen_label_ids)])
+            for i in range(0, 37):
+            # for i in range(0, 3):
+                batch_data = umls_dev.next_batch(dev_unseen_label_ids)
+                feed_dict = dict(zip(dev_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
+                print_predict_y = sess.run(dev_predict_y, feed_dict)
+                predict_ys = np.vstack((predict_ys, print_predict_y))
+                truth_ys = np.vstack((truth_ys, batch_data[-1]))
+                with open('temp.txt', 'w') as f:
+                    f.write('testing dev batch {} : {}\n'.format(i, print_loss))
+            F1, dev_type_f1s, dev_F1_num = evaluate.acc_hook_f1_break_down(predict_ys, truth_ys, epoch, 2, log_path)
+            dev_F1s.append(F1)
+            epoch_type_f1_info.add_f1s(dev_unseen_label_ids, dev_type_f1s, dev_F1_num, 1)
 
 
             # test performance
 
-            truth_ys = np.zeros(((370)*100, len(test_unseen_label_ids)))
-            predict_ys = np.zeros(((370)*100, len(test_unseen_label_ids)))
-            for i in range(0, 370):
-                batch_data = figer_test.next_batch(test_unseen_label_ids)
-                # if i in range(0, 300):
-                #     continue
+            truth_ys = np.zeros([0, len(test_unseen_label_ids)])
+            predict_ys = np.zeros([0, len(test_unseen_label_ids)])
+            for i in range(0, 37):
+            # for i in range(0, 3):
+                batch_data = umls_test.next_batch(test_unseen_label_ids)
                 feed_dict = dict(zip(test_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
                 print_predict_y = sess.run(test_predict_y, feed_dict)
-                predict_ys[(i)*100:(i+1)*100] = print_predict_y
-                # predict_ys = np.vstack((predict_ys, print_predict_y))
-                truth_ys[(i)*100:(i+1)*100] = batch_data[-1]
-                # truth_ys = np.vstack((truth_ys, batch_data[-1]))
+                predict_ys = np.vstack((predict_ys, print_predict_y))
+                truth_ys = np.vstack((truth_ys, batch_data[-1]))
                 with open('temp.txt', 'w') as f:
                     f.write('testing test batch {} : {}\n'.format(i, print_loss))
 
-            # flag_array = np.zeros(1387)
-            #
-            # for i in range(0, truth_ys.shape[0]):
-            #     for j in range(0, 1387):
-            #         if truth_ys[i][j] == 1:
-            #             flag_array[j] = 1
-            # print np.sum(flag_array)
-            #
-            # for i in range(0, 1387):
-            #     if flag_array[i] == 0:
-            #         print i
-            # print 'done'
-            # while True:
-            #     pass
-            #
-            # for i in range(0, predict_ys.shape[0]):
-            #     print predict_ys[i]
-            #     print truth_ys[i]
 
-
-
-            # F1, test_type_f1s, test_F1_num = evaluate.acc_hook_f1_break_down(predict_ys,truth_ys, epoch, 0, log_path, prior=test_prior)
-            # test_F1s.append(F1)
-            # epoch_type_f1_info.add_f1s(test_unseen_label_ids, test_type_f1s, test_F1_num, 2)
+            F1, test_type_f1s, test_F1_num = evaluate.acc_hook_f1_break_down(predict_ys,truth_ys, epoch, 0, log_path, prior=test_prior)
+            test_F1s.append(F1)
+            epoch_type_f1_info.add_f1s(test_unseen_label_ids, test_type_f1s, test_F1_num, 2)
             epoch_type_f1_info.add_test_auc(test_unseen_label_ids, truth_ys, predict_ys)
+            print(truth_ys.shape)
             type_f1_info.append(epoch_type_f1_info)
 
 
-            # batch_data = figer_test.next_batch(test_unseen_label_ids)
-            # feed_dict = dict(zip(test_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
-            # print_predict_y = sess.run(test_predict_y, feed_dict)
-            # F1, test_type_f1s, test_F1_num = evaluate.acc_hook_f1_break_down(print_predict_y, batch_data[-1], epoch, 0, log_path, prior=test_prior)
-            # test_F1s.append(F1)
-            # epoch_type_f1_info.add_f1s(test_unseen_label_ids, test_type_f1s, test_F1_num, 2)
-            # epoch_type_f1_info.add_test_auc(test_unseen_label_ids, batch_data[-1], print_predict_y)
-            # type_f1_info.append(epoch_type_f1_info)
-
-        print 'finish'
-
-        print epoch_type_f1_info.test_auc_dict
-
-        print np.mean(epoch_type_f1_info.test_auc_dict.values())
-
-
-        # with open('./umls_type_f1_file/' + log_path[19:-4] + '.pickle', 'w') as outfile:
-        #     pickle.dump(type_f1_info, outfile)
+        with open('./umls_type_f1_file/' + log_path[17:-4] + '.pickle', 'wb') as outfile:
+            pickle.dump(type_f1_info, outfile)
         #
         #
         # dev_max_id = np.argmax(dev_F1s, 0)[2][2]
@@ -221,8 +209,8 @@ feature_flag = 0, entity_type_feature_flag = 0, exact_entity_type_feature_flag =
     word_emb = np.load('./umls_data/umls_word_emb.npy').astype(np.float32)
     word_emb_lookup_table = tf.get_variable(initializer=word_emb, dtype=tf.float32, trainable = False, name = 'word_emb_lookup_table')
 
-    with open('umls_data/umls_labelid2emb.pkl', 'r') as f:
-        label_id2emb = pickle.load(f)
+
+    label_id2emb = np.load('umls_data/umls_labelid2emb.npy')
     if select_flag == 1:
         label_id2emb = np.take(label_id2emb, seen_label_ids, 0)
         label_id2emb_matrix = tf.constant(label_id2emb, dtype=tf.float32, name = 'train_label_id2emb_matrix')
@@ -230,8 +218,8 @@ feature_flag = 0, entity_type_feature_flag = 0, exact_entity_type_feature_flag =
         label_id2emb = np.take(label_id2emb, test_unseen_label_ids, 0)
         label_id2emb_matrix = tf.constant(label_id2emb, dtype=tf.float32, name = 'test_label_id2emb_matrix')
     elif select_flag == 3:
-            label_id2emb = np.take(label_id2emb, dev_unseen_label_ids, 0)
-            label_id2emb_matrix = tf.constant(label_id2emb, dtype=tf.float32, name = 'dev_label_id2emb_matrix')
+        label_id2emb = np.take(label_id2emb, dev_unseen_label_ids, 0)
+        label_id2emb_matrix = tf.constant(label_id2emb, dtype=tf.float32, name = 'dev_label_id2emb_matrix')
 
     l_context_embs = tf.nn.embedding_lookup(word_emb_lookup_table, l_context_ids)
     r_context_embs = tf.nn.embedding_lookup(word_emb_lookup_table, r_context_ids)
@@ -377,9 +365,9 @@ def my_argparse():
     parser.add_argument('model_flag', help='model to train', choices=['ave','LSTM', 'attention'])
     parser.add_argument('feature_flag', help='figer feature flag', choices=[0], type=int)
     parser.add_argument('entity_type_feature_flag', help='entity type (general) feature flag', choices=[0], type=int)
-    parser.add_argument('exact_entity_type_feature_flag', help='entity type (exact) feature flag', choices=[0], type=int)
+    parser.add_argument('exact_entity_type_feature_flag', help='entity type (exact) feature flag', choices=[0, 1], type=int)
     parser.add_argument('type_only_feature_flag', help='type only feature', choices=[0], type=int)
-    parser.add_argument('id_select_flag', help='seen & unseen type select', choices=[0], type=int)
+    parser.add_argument('id_select_flag', help='seen & unseen type select', choices=[0, 2]+list(range(10,20)), type=int)
     parser.add_argument('-auto_gen_log_path', help='if auto gen log_path', choices=[1, 0], default=0, type=int)
     parser.add_argument('-log_path', help='path of the log file', default='loss_record.txt')
 

@@ -320,6 +320,37 @@ def after_tagged_sentence():
     gen_nn_type_emb()
 
 
+def get_an_example():
+    type_name_list = []
+    gid_list = get_all_gid()
+    for gid in gid_list:
+        name = find_name_of_gid(gid)
+        type_name_list.append(name)
+
+    with open('neural_science_data/nn_tagged_context.txt', 'r') as f:
+        lines = f.readlines()
+    types = np.load('neural_science_data/nn_Types_with_context.npy')
+
+    for example_id in range(0, 100):
+
+        example_type = types[example_id]
+        count = 0
+        for i in range(0, len(type_name_list)):
+            if example_type[i] == 1:
+                count += 1
+        if count < 2:
+            continue
+
+        print('context = {}'.format(lines[example_id]))
+        print('type')
+        for i in range(0, len(type_name_list)):
+            if example_type[i] == 1:
+                print(type_name_list[i])
+
+
+
+
+
 def temp():
     gen_nn_type_emb()
 
@@ -327,11 +358,5 @@ def temp():
 
 if __name__ == "__main__":
     # after_tagged_sentence()
-    # gen_nn_gid_to_index()
-    # gen_entity_sentences()
-    # get_nn_umls_entities()
-    # filter_nn_file_relation_new()
-    temp()
-    # gen_nn_type_array()
-    # gen_nn_gid_to_index()
-    # gen_nn_type_array()
+    # temp()
+    get_an_example()

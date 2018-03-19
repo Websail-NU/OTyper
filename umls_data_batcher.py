@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import pickle
+import gensim
 
 
 class Vocabulary:
@@ -32,18 +34,18 @@ class Vocabulary:
 class umls_data_multi_label:
     def __init__ (self, batch_size = 100, entity_file = 'umls_data/refined_umls_word.txt', \
                     context_file = 'umls_data/refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'umls_data/umls_exact_et_features.npy', \
                     type_file = 'umls_data/umls_Types_with_context.npy'):
         self.shuffle_flag = 0
         self.vob = Vocabulary()
-        self.load_data(entity_file, context_file, type_file)
+        self.load_data(entity_file, context_file, type_file, entity_type_exact_feature_file)
         self.train_pos = 0
         self.batch_size = min(batch_size, len(self.Entity_var_ids))
         self.total_batch_num = int(len(self.Entity_var_ids) / self.batch_size)
 
 
 
-    def load_data(self, entity_file, context_file, type_file, window_size = 10):
-
+    def load_data(self, entity_file, context_file, type_file, entity_type_exact_feature_file, window_size = 10):
         self.Entity_var_ids = []
         with open(entity_file, 'r') as f:
             for line in f:
@@ -64,7 +66,9 @@ class umls_data_multi_label:
 
         self.Types = np.load(type_file)
 
-        self.r = range(0, len(self.Entity_var_ids))
+        self.Exact_entity_type_features = np.load(entity_type_exact_feature_file)
+
+        self.r = list(range(0, len(self.Entity_var_ids)))
 
         if self.shuffle_flag == 1:
             self.shuffle()
@@ -82,6 +86,8 @@ class umls_data_multi_label:
         ret_Entity_var_ids = []
         ret_r_Left_context_ids = []
         ret_Right_context_ids = []
+        ret_Exact_entity_type_features = []
+
         ret_Ys = []
 
 
@@ -96,11 +102,14 @@ class umls_data_multi_label:
             local_r_Left_context_ids = self.r_Left_context_ids[self.r[self.train_pos]]
             local_Right_context_ids = self.Right_context_ids[self.r[self.train_pos]]
 
+            local_Exact_entity_type_features = self.Exact_entity_type_features[self.r[self.train_pos]]
+
             local_Ys = self.Types[self.r[self.train_pos]]
 
             ret_Entity_var_ids.append(local_Entity_var_ids)
             ret_r_Left_context_ids.append(local_r_Left_context_ids)
             ret_Right_context_ids.append(local_Right_context_ids)
+            ret_Exact_entity_type_features.append(local_Exact_entity_type_features)
 
             ret_Ys.append(local_Ys)
 
@@ -134,10 +143,8 @@ class umls_data_multi_label:
         t_type_only_features = np.zeros((batch_size, type_size, 3))
 
 
-
-
         ret_Entity_type_features = np.zeros((batch_size, type_size, 3))
-        ret_Exact_entity_type_features = np.zeros((batch_size, type_size, 3))
+        ret_Exact_entity_type_features = np.take(ret_Exact_entity_type_features, select_label_ids, 1)
         ret_Type_only_features = np.zeros((batch_size, type_size, 3))
 
         ret_Ys = np.asarray(ret_Ys, dtype=np.float32)
@@ -194,15 +201,43 @@ def vstack_list_padding_2d(data, padding_element = 0, dtype=np.int32):
     return arr, np.array(lengths, dtype=np.int32)
 
 
+def get_an_example():
+    a = umls_data_multi_label()
+    ret = a.next_batch(list(range(0, 1387)))
+
+    print(ret[-3].shape)
+
+
+def temp():
+    # with open('umls_data/all_entity_name_list_new.pkl', 'rb') as f:
+    #     l = pickle.load(f)
+    #
+    # w2v = gensim.models.KeyedVectors.load_word2vec_format('/websail/common/embeddings/glove/840B/glove.840B.300d.bin', binary=True)
+    #
+    # total_count = 0
+    # match_count = 0
+    #
+    # for e in l:
+    #     for word in e.split():
+    #         total_count += 1
+    #         if word in w2v or word.lower() in w2v:
+    #             match_count += 1
+    #
+    # print('total count = {} match count = {}'.format(total_count, match_count))
+
+    t = np.load('umls_data/umls_exact_et_features.npy')
+
+    s = set()
+    for i in range(0, t.shape[0]):
+        for j in range(0, 1387):
+            if t[i][j][0] > 0:
+                s.add(j)
+
+    print(len(s))
+
+
+
+
 if __name__ == "__main__":
-    t = umls_data_multi_label()
-    d = t.next_batch(range(0, 1387))
-    s = 0
-    for i in range(0, 370):
-        d = t.next_batch(range(0, 1387))
-        s = 0
-        for e in d[-1][i]:
-            s += e
-        if s!=12:
-            print s
-    print s
+    # get_an_example()
+    temp()

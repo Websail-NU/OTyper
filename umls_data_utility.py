@@ -1,12 +1,15 @@
 import json
-import cPickle as pickle
+# import cPickle as pickle
+import pickle
 import gensim
-import arff
+# import arff
 import string
 import os
 import numpy as np
 import sys
 import umls_data_batcher
+import random
+from collections import defaultdict
 
 
 
@@ -64,7 +67,7 @@ def gen_all_gid():
         all_entity_gid_list_new.append(k)
         all_entity_name_list_new.append(d[k])
 
-    print len(all_entity_gid_list_new)
+    print(len(all_entity_gid_list_new))
 
     with open('umls_data/all_entity_gid_list_new.pkl', 'w') as wf:
         pickle.dump(all_entity_gid_list_new, wf)
@@ -87,7 +90,7 @@ def get_full_set_cui():
 
     for e in relations:
         if 'type' in e['relation_type']:
-            print e
+            print(e)
             break
 
 
@@ -105,17 +108,17 @@ def filter_umls_file_entity():
             if c in e['research_entity_id']:
                 entities.append(e)
                 if flag == 0:
-                    print e['research_entity_id']
-                    print c
+                    print(e['research_entity_id'])
+                    print(c)
                     flag = 1
                 break
         count += 1
         if count % 10000 == 0:
-            print count
+            print(count)
 
     with open('umls_data/entities.pkl', 'w') as f:
         pickle.dump(entities,f)
-    print len(entities)
+    print(len(entities))
 
 
 def filter_umls_file_relation():
@@ -131,17 +134,17 @@ def filter_umls_file_relation():
     with open('/websail/common/umls/umls.json', 'r') as f:
         umls_data = json.load(f)
 
-    print 'total = {}'.format(len(umls_data['relations']))
-    print len(r_set)
+    print('total = {}'.format(len(umls_data['relations'])))
+    print(len(r_set))
     count = 0
     for e in umls_data['relations']:
         if e['global_id'] in r_set:
             relations.append(e)
         count += 1
         if count % 10000 == 0:
-            print count
+            print(count)
 
-    print len(relations)
+    print(len(relations))
 
     with open('relations.pkl', 'w') as f:
         pickle.dump(relations,f)
@@ -187,7 +190,7 @@ def filter_umls_file_relation_new():
                 break
             elif entities[e_dict[c_gid]]['canonical_name'] in entity_name_list:
                 break
-        print count
+        print(count)
         count += 1
 
         all_entity_gid_list.append(entity_gid_list)
@@ -296,13 +299,13 @@ def gen_type_emb():
             word_index = vob.w2i(w)
             emb_list.append(word_emb[word_index])
         if len(emb_list) == 0:
-            print 'zero length'
+            print('zero length')
             ave_type_emb_list.append(np.zeros(300))
         else:
             ave_type_emb_list.append(np.mean(emb_list, axis=0))
 
     ave_type_emb_list = np.asarray(ave_type_emb_list, dtype=np.float32)
-    print ave_type_emb_list.shape
+    print(ave_type_emb_list.shape)
 
     np.save('umls_data/umls_labelid2emb', ave_type_emb_list)
 
@@ -369,9 +372,108 @@ def trans_id_to_entities(id, entities):
             name = e['canonical_name']
             return name.split()
 
-    print id
+    print(id)
     assert(True == False)
     return None
+
+
+def split_train_dev_test():
+    with open('umls_data/refined_umls_word.txt', 'r') as f:
+        lines = f.readlines()
+
+    r = list(range(0, len(lines)))
+    random.shuffle(r)
+
+    for i in range(0, len(r)):
+        t = lines[i]
+        lines[i] = lines[r[i]]
+        lines[r[i]] = t
+
+    with open('umls_data/train_refined_umls_word.txt', 'w') as train_wf:
+        with open('umls_data/dev_refined_umls_word.txt', 'w') as dev_wf:
+            with open('umls_data/test_refined_umls_word.txt', 'w') as test_wf:
+                for i in range(0, len(r)):
+                    if i < 0.8*len(r):
+                        train_wf.write(lines[i])
+                    elif i < 0.9*len(r):
+                        dev_wf.write(lines[i])
+                    else:
+                        test_wf.write(lines[i])
+
+    with open('umls_data/refined_umls_tagged_context.txt', 'r') as f:
+        lines = f.readlines()
+
+    for i in range(0, len(r)):
+        t = lines[i]
+        lines[i] = lines[r[i]]
+        lines[r[i]] = t
+
+    train_count = 0
+    dev_count = 0
+    test_count = 0
+    with open('umls_data/train_refined_umls_tagged_context.txt', 'w') as train_wf:
+        with open('umls_data/dev_refined_umls_tagged_context.txt', 'w') as dev_wf:
+            with open('umls_data/test_refined_umls_tagged_context.txt', 'w') as test_wf:
+                for i in range(0, len(r)):
+                    if i < 0.8*len(r):
+                        train_wf.write(lines[i])
+                        train_count += 1
+                    elif i < 0.9*len(r):
+                        dev_wf.write(lines[i])
+                        dev_count += 1
+                    else:
+                        test_wf.write(lines[i])
+                        test_count += 1
+
+    feature = np.load('umls_data/umls_exact_et_features.npy')
+    type = np.load('umls_data/umls_Types_with_context.npy')
+
+    for i in range(0, len(r)):
+        t = feature[i]
+        feature[i] = feature[r[i]]
+        feature[r[i]] = t
+
+        t = type[i]
+        type[i] = type[r[i]]
+        type[r[i]] = t
+
+    np.save('umls_data/train_umls_exact_et_features.npy', feature[0:train_count])
+    np.save('umls_data/dev_umls_exact_et_features.npy', feature[train_count:train_count+dev_count])
+    np.save('umls_data/test_umls_exact_et_features.npy', feature[train_count+dev_count:])
+
+    np.save('umls_data/train_umls_Types_with_context.npy', type[0:train_count])
+    np.save('umls_data/dev_umls_Types_with_context.npy', type[train_count:train_count+dev_count])
+    np.save('umls_data/test_umls_Types_with_context.npy', type[train_count+dev_count:])
+
+    assert(feature[0:train_count].shape[0] == train_count)
+    assert(feature[train_count:train_count+dev_count].shape[0] == dev_count)
+    assert(feature[train_count+dev_count:].shape[0] == test_count)
+
+    assert(type[0:train_count].shape[0] == train_count)
+    assert(type[train_count:train_count+dev_count].shape[0] == dev_count)
+    assert(type[train_count+dev_count:].shape[0] == test_count)
+
+
+def umls_count():
+    type_array = [0]*1387
+    umls_data = umls_data_batcher.umls_data_multi_label(entity_file = 'umls_data/test_refined_umls_word.txt', \
+                    context_file = 'umls_data/test_refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'umls_data/test_umls_exact_et_features.npy', \
+                    type_file = 'umls_data/test_umls_Types_with_context.npy')
+    for i in range(0, 37):
+        data = umls_data.next_batch(list(range(0, 1387)))
+        Ys = data[-1]
+        for j in range(0, Ys.shape[0]):
+            for k in range(0, 1387):
+                if Ys[j][k] == 1.0:
+                    type_array[k] += 1
+
+    with open('umls_data/test_type_count.pkl', 'wb') as wf:
+        pickle.dump(type_array, wf)
+
+
+
+
 
 
 
@@ -380,7 +482,7 @@ def temp():
         umls_data = json.load(f)
     for e in umls_data['entities']:
         if e['canonical_name'] == 'age' or e['canonical_name'] == 'few':
-            print e
+            print(e)
 
 
 if __name__ == "__main__":
@@ -389,7 +491,9 @@ if __name__ == "__main__":
     # w2v_gen_umls_tagged_contex()
     # get_full_set_cui()
     # filter_umls_file_relation_new()
-    temp()
+    # temp()
+    # split_train_dev_test()
     # gen_all_gid()
     # gen_entity_word_file()
     # gen_type_emb()
+    umls_count()

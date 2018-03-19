@@ -9,6 +9,7 @@ import pickle
 import argparse
 import sys
 import data_utility
+import hook
 
 
 
@@ -202,6 +203,7 @@ def seen_type_dot_distance_label_matrix():
             figer.shuffle()
             epoch_type_f1_info = data_utility.type_f1s()
             for i in range(0, 2000):
+            # for i in range(0, 1):
                 batch_data = figer.next_batch(seen_label_ids)
                 feed_dict = dict(zip(train_placeholders, list(batch_data) + list([0.5]) + list([0.0])))
 
@@ -214,6 +216,7 @@ def seen_type_dot_distance_label_matrix():
             predict_ys = np.zeros([0, len(seen_label_ids)])
             truth_ys = np.zeros([0, len(seen_label_ids)])
             for i in range(0, 200):
+            # for i in range(0, 2):
                 batch_data = figer.next_batch(seen_label_ids)
                 feed_dict = dict(zip(train_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
                 print_predict_y = sess.run(train_predict_y, feed_dict)
@@ -231,6 +234,7 @@ def seen_type_dot_distance_label_matrix():
             predict_ys = np.zeros([0, len(dev_unseen_label_ids)])
             truth_ys = np.zeros([0, len(dev_unseen_label_ids)])
             for i in range(0, 10):
+            # for i in range(0, 1):
                 batch_data = figer_dev.next_batch(dev_unseen_label_ids)
                 feed_dict = dict(zip(dev_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
                 print_predict_y = sess.run(dev_predict_y, feed_dict)
@@ -242,11 +246,14 @@ def seen_type_dot_distance_label_matrix():
             dev_F1s.append(F1)
             epoch_type_f1_info.add_f1s(dev_unseen_label_ids, dev_type_f1s, dev_F1_num, 1)
 
-
             # test performance
             batch_data = figer_test.next_batch(test_unseen_label_ids)
             feed_dict = dict(zip(test_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
             print_predict_y = sess.run(test_predict_y, feed_dict)
+
+            record_test_result(print_predict_y, batch_data, figer_test, test_unseen_label_ids, id_select_flag)
+
+            hook.acc_hook(print_predict_y, batch_data[-1])
             F1, test_type_f1s, test_F1_num = evaluate.acc_hook_f1_break_down(print_predict_y, batch_data[-1], epoch, 0, log_path, prior=test_prior)
             test_F1s.append(F1)
             epoch_type_f1_info.add_f1s(test_unseen_label_ids, test_type_f1s, test_F1_num, 2)
@@ -254,7 +261,7 @@ def seen_type_dot_distance_label_matrix():
             type_f1_info.append(epoch_type_f1_info)
 
 
-        with open('./type_f1_file/' + log_path[12:-4] + '.pickle', 'w') as outfile:
+        with open('./type_f1_file/' + log_path[12:-4] + '.pickle', 'wb') as outfile:
             pickle.dump(type_f1_info, outfile)
 
 
@@ -275,6 +282,58 @@ def seen_type_dot_distance_label_matrix():
         with open(log_path, 'a') as f:
             f.write('max__d_e_v__t_e_s_t__macro__micro= {:.4f}\t{:.4f}\n'.format(max_dev_test_macro, max_dev_test_micro))
             f.write('max__t_e_s_t__macro__micro= {:.4f}\t{:.4f}\n'.format(max_test_macro, max_test_micro))
+
+
+def record_test_result(print_predict_y, batch_data, figer_test, test_unseen_label_ids, id_select_flag):
+    np.save('test_examples/type_result', print_predict_y)
+    np.save('test_examples/entities', batch_data[0])
+    np.save('test_examples/l_context', batch_data[2])
+    np.save('test_examples/r_context', batch_data[4])
+    np.save('test_examples/Ys', batch_data[-1])
+    np.save('test_examples/test_unseen_label_ids', test_unseen_label_ids)
+    with open('test_examples/vocb', 'wb') as wf:
+        pickle.dump(figer_test.vob, wf)
+
+    read_test_result(id_select_flag)
+
+
+def read_test_result(id_select_flag):
+
+    print_predict_y = np.load('test_examples/type_result.npy')
+    entities = np.load('test_examples/entities.npy')
+    l_context = np.load('test_examples/l_context.npy')
+    r_context = np.load('test_examples/r_context.npy')
+    Ys = np.load('test_examples/Ys.npy')
+    test_unseen_label_ids = np.load('test_examples/test_unseen_label_ids.npy')
+    with open('test_examples/vocb.pkl', 'rb') as f:
+        vob = pickle.load(f)
+
+    # dicts = joblib.load('/home/zys133/knowledge_base/NFGEC/data/Wiki/dicts_figer.pkl')
+    # with open('test_examples/id2label.pkl', 'wb') as wf:
+    #     pickle.dump(dicts['id2label'], wf)
+
+    with open('test_examples/id2label.pkl', 'rb') as f:
+        id2label = pickle.load(f)
+
+    file_path = 'test_examples/test_examples_' + str(id_select_flag) + '.txt'
+    with open(file_path, 'w') as wf:
+        for i in range(0, print_predict_y.shape[0]):
+            correct_type = -1
+            for j in range(0, len(Ys[i])):
+                if Ys[i][j] == 1.0:
+                    correct_type = j
+            if correct_type != -1:
+                wf.write('entity = {}\n'.format(' '.join([vob.i2w(int(e)) for e in entities[i] if not vob.i2w(int(e)) == '_my_null_'])))
+                wf.write('l_context = {}\n'.format(' '.join([vob.i2w(int(e)) for e in l_context[i] if not vob.i2w(int(e)) == '_my_null_'])))
+                wf.write('r_context = {}\n'.format(' '.join([vob.i2w(int(e)) for e in r_context[i] if not vob.i2w(int(e)) == '_my_null_'])))
+                sort_ids = np.argsort(print_predict_y[i])
+                wf.write('ranked types = {}\n'.format(', '.join([id2label[test_unseen_label_ids[j]] for j in reversed(sort_ids)])))
+                wf.write('correct type = {}\n'.format(id2label[test_unseen_label_ids[correct_type]]))
+                wf.write('----------\n')
+                assert(True == False)
+
+
+
 
 
 
@@ -304,8 +363,7 @@ feature_flag = 0, entity_type_feature_flag = 0, exact_entity_type_feature_flag =
     word_emb = np.load('./data/word_emb.npy').astype(np.float32)
     word_emb_lookup_table = tf.get_variable(initializer=word_emb, dtype=tf.float32, trainable = False, name = 'word_emb_lookup_table')
 
-    with open('data/labelid2emb.pkl', 'r') as f:
-        label_id2emb = pickle.load(f)
+    label_id2emb = np.load('data/labelid2emb.npy')
     if select_flag == 1:
         label_id2emb = np.take(label_id2emb, seen_label_ids, 0)
         label_id2emb_matrix = tf.constant(label_id2emb, dtype=tf.float32, name = 'train_label_id2emb_matrix')
@@ -518,7 +576,12 @@ def get_CV_info(file_name):
 
 
 def temp():
-    pass
+    a = np.zeros((2,3))
+    a[0] = [1,2,3]
+    a[1] = [3,2,1]
+    print(a)
+
+    print(np.argsort(a, axis=1))
 
 
 
@@ -526,3 +589,4 @@ if __name__ == "__main__":
     seen_type_dot_distance_label_matrix()
     # w2v_type_linear()
     # temp()
+    # read_test_result()

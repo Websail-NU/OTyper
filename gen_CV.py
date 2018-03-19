@@ -38,5 +38,42 @@ def gen_CV():
             f.write('\n')
 
 
+def gen_CV_MSH():
+    test_ids = list(range(0, 1387))
+
+    np.random.shuffle(test_ids)
+
+    test_p = 0
+
+    with open('CV_output_MSH.txt', 'w') as f:
+        for i in range(0, 10):
+            if test_p < 139*7:
+                c_test_ids = test_ids[test_p:test_p+139]
+                test_p += 139
+            else:
+                c_test_ids = test_ids[test_p:test_p+138]
+                test_p += 138
+
+
+            c_rest_ids = []
+            for j in range(0, 1387):
+                if not j in c_test_ids:
+                    c_rest_ids.append(j)
+
+            np.random.shuffle(c_rest_ids)
+
+            c_dev_ids = c_rest_ids[0:138]
+
+            c_train_ids = c_rest_ids[138:]
+
+            f.write(' '.join(str(e) for e in c_train_ids))
+            f.write('\n')
+            f.write(' '.join(str(e) for e in c_dev_ids))
+            f.write('\n')
+            f.write(' '.join(str(e) for e in c_test_ids))
+            f.write('\n')
+
+
 if __name__ == "__main__":
-    gen_CV()
+    # gen_CV()
+    gen_CV_MSH()

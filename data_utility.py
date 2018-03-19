@@ -549,9 +549,13 @@ def get_10_CV_similarity_loss():
 
 
 def temp():
-    global global_a
-    global_a = 1
-    print(global_a)
+    # with open('data/labelid2emb.pkl', 'r') as f:
+    #     label_id2emb = pickle.load(f)
+    #
+    # np.save('data/labelid2emb', label_id2emb)
+
+    label_id2emb = np.load('data/labelid2emb.npy')
+    print(label_id2emb.shape)
 
 
 

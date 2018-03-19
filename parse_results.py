@@ -14,7 +14,7 @@ def tail(f, n, offset=0):
 def parse():
     feature_flag = 1
     for model_name in ['ave','LSTM', 'attention']:
-        print model_name
+        print(model_name)
         for entity_type_feature_flag in range(0, 2):
             for exact_entity_type_feature_flag in range(0, 2):
                 for type_only_feature_flag in range(0, 2):
@@ -28,7 +28,7 @@ def parse():
                         log_path += (str(id_select_flag))
                         log_path += '.txt'
                         result = tail(log_path, 2)
-                        print '{}\t{}\t{}\t{}'.format(result[0][0],result[0][1],result[1][0],result[1][1])
+                        print('{}\t{}\t{}\t{}'.format(result[0][0],result[0][1],result[1][0],result[1][1]))
 
 if __name__ == "__main__":
     parse()
