@@ -13,7 +13,7 @@ import figer_data_multi_label_batcher
 def get_CV_results():
     folder = './type_f1_file/'
     model_string = 'attention_'
-    flag_string = '0_0_1_1_'
+    flag_string = '1_0_1_1_'
     folder_log = './log_files/'
     with open('data/test_type_count.pkl', 'rb') as f:
         b = pickle.load(f)
@@ -23,7 +23,7 @@ def get_CV_results():
     total_F1_num = np.zeros(3)
     example_f1s = []
 
-    for i in range(20, 30):
+    for i in range(10, 15):
         cv_id = i % 10
 
         cv = str(i)
@@ -54,7 +54,7 @@ def get_CV_results():
     auc_array = []
     for  k in final_auc_dict:
         auc_array.append((b[int(k)][1]/count_sum) * final_auc_dict[k])
-    print('average auc = {}'.format(np.sum(auc_array)))
+    print('average type auc = {}'.format(np.sum(auc_array)))
 
 
     print('---popularity---')
@@ -85,7 +85,7 @@ def get_single_log_file_results(data_id):
     folder = './type_f1_file/'
     log_folder = './log_files/'
     model_string = 'attention_'
-    flag_string = '0_0_0_1_'
+    flag_string = '1_0_1_1_'
     # dicts = joblib.load('/home/zys133/knowledge_base/NFGEC/data/Wiki/dicts_figer.pkl')
     final_test_dict = {}
     data_id = str(data_id)
@@ -109,10 +109,9 @@ def get_single_log_file_results(data_id):
 
     auc_array = []
     for  k in final_auc_dict:
-        key = k
         auc_array.append((b[int(k)][1]/count_sum) * final_auc_dict[k])
 
-    print('average auc = {} {:.4f}'.format(key, np.sum(auc_array)))
+    print('type auc = {:.4f}'.format(np.sum(auc_array)))
 
     return final_auc_dict
 
@@ -363,11 +362,5 @@ def temp():
 if __name__ == "__main__":
     # temp()
     # get_top_bot_performance()
-    # get_single_log_file_results(3)
-    # get_single_log_file_results(4)
-    # get_CV_results()
-    # loc_error_analysis()
-    # cap_ratio()
-    # for i in range(10, 20):
-    #     get_single_log_file_results_umls(i)
-    get_single_log_file_results_umls(2)
+    # get_single_log_file_results(10)
+    get_CV_results()

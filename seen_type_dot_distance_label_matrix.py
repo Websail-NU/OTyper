@@ -291,10 +291,10 @@ def record_test_result(print_predict_y, batch_data, figer_test, test_unseen_labe
     np.save('test_examples/r_context', batch_data[4])
     np.save('test_examples/Ys', batch_data[-1])
     np.save('test_examples/test_unseen_label_ids', test_unseen_label_ids)
-    with open('test_examples/vocb', 'wb') as wf:
+    with open('test_examples/vocb.pkl', 'wb') as wf:
         pickle.dump(figer_test.vob, wf)
 
-    read_test_result(id_select_flag)
+    # read_test_result(id_select_flag)
 
 
 def read_test_result(id_select_flag):

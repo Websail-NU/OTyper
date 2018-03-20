@@ -372,7 +372,7 @@ def get_test_type_occurrence():
 
     dicts = joblib.load('/home/zys133/knowledge_base/NFGEC/data/Wiki/dicts_figer.pkl')
 
-    with open('data/test_type_count.pkl', 'w') as f:
+    with open('data/test_type_count.pkl', 'wb') as f:
         pickle.dump(b, f)
 
     b = b[b[:,1].argsort()[::-1]]
@@ -567,7 +567,8 @@ if __name__ == "__main__":
     # get_hearst_feature_predict()
     # get_test_type_occurrence()
     # get_top_k_labels()
-    temp()
+    # temp()
+    get_test_type_occurrence()
     # read_Mentions_embedding_types()
     # get_train_type_freq()
     # get_ave_top_k_prior([0], range(0,113), 3)
