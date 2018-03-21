@@ -335,10 +335,6 @@ def read_test_result(id_select_flag):
 
 
 
-
-
-
-
 def create_model(select_flag, seen_label_ids=None, test_unseen_label_ids=None, dev_unseen_label_ids=None, model_flag = 0, \
 feature_flag = 0, entity_type_feature_flag = 0, exact_entity_type_feature_flag = 0, type_only_feature_flag = 0):
     if model_flag == 0:

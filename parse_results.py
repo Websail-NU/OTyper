@@ -1,9 +1,20 @@
 import os
+import subprocess
 import numpy as np
 def tail(f, n, offset=0):
-  stdin,stdout = os.popen2("tail -n "+str(n)+" "+f)
-  stdin.close()
-  lines = stdout.readlines(); stdout.close()
+  # stdin,stdout = os.popen2("tail -n "+str(n)+" "+f)
+  # stdin.close()
+  # lines = stdout.readlines(); stdout.close()
+  # ret = np.zeros((2,2))
+  # ret[0][0] = float(lines[0].split()[-2])
+  # ret[0][1] = float(lines[0].split()[-1])
+  # ret[1][0] = float(lines[1].split()[-2])
+  # ret[1][1] = float(lines[1].split()[-1])
+  # return ret
+  proc = subprocess.Popen(["tail", "-n" , str(n), f], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+  lines,err=proc.communicate()
+  # print(lines)
+  lines = lines.decode("utf-8").split('\n')
   ret = np.zeros((2,2))
   ret[0][0] = float(lines[0].split()[-2])
   ret[0][1] = float(lines[0].split()[-1])

@@ -59,10 +59,10 @@ def run():
     # run_helper('attention', 0, 1, 0, range(5, 7), 'openner')
 
 #    run_helper('attention', 1, 1, 1, range(10, 20), 'openner')
-    run_helper('attention', 1, 1, 1, range(10, 20), 'openner')
+    # run_helper('attention', 1, 1, 1, range(10, 20), 'openner')
 
 
-    # run_helper_MSH('attention', 0, 1, 0, range(2,3), 'openner')
+    run_helper_MSH('attention', 0, 1, 0, range(10,20), 'openner')
 
     # run_helper_MSH('attention', 0, 1, 0, range(10,20), 'openner')
     # run_helper_MSH('emb_sub', 0, 0, 0, range(10, 20), 'base_line')

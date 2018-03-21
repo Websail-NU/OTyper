@@ -23,7 +23,7 @@ def get_CV_results():
     total_F1_num = np.zeros(3)
     example_f1s = []
 
-    for i in range(10, 15):
+    for i in range(10, 20):
         cv_id = i % 10
 
         cv = str(i)
@@ -46,22 +46,73 @@ def get_CV_results():
         type_F1_weighted += (b[int(k)][1]/count_sum) * final_test_dict[k]
 
 
-    print('OpenNET type weighted average Macro {}'.format(type_F1_weighted))
+    print('FIGER(GOLD) OTyper type weighted average Macro {}'.format(type_F1_weighted))
     precision = total_F1_num[0] / total_F1_num[1]
     recall = total_F1_num[0] / total_F1_num[2]
-    print('OpenNET type micro {}'.format(evaluate.f1(precision, recall)))
+    print('FIGER(GOLD) OTyper type micro {}'.format(evaluate.f1(precision, recall)))
 
     auc_array = []
     for  k in final_auc_dict:
         auc_array.append((b[int(k)][1]/count_sum) * final_auc_dict[k])
-    print('average type auc = {}'.format(np.sum(auc_array)))
+    print('FIGER(GOLD) OTyper Average type auc = {}'.format(np.sum(auc_array)))
 
 
-    print('---popularity---')
-    print('id---name---freq---auc---')
-    dicts = joblib.load('/home/zys133/knowledge_base/NFGEC/data/Wiki/dicts_figer.pkl')
-    for k in final_auc_dict:
-        print('{}\t{}\t{}\t{:.4f}'.format(k, dicts['id2label'][k], b[k][1], final_auc_dict[k]))
+    # print('---popularity---')
+    # print('id---name---freq---auc---')
+    # dicts = joblib.load('/home/zys133/knowledge_base/NFGEC/data/Wiki/dicts_figer.pkl')
+    # for k in final_auc_dict:
+    #     print('{}\t{}\t{}\t{:.4f}'.format(k, dicts['id2label'][k], b[k][1], final_auc_dict[k]))
+
+
+def get_CV_results_msh():
+
+    folder = './umls_type_f1_file/'
+    model_string = 'attention_'
+    flag_string = '0_0_1_0_'
+    folder_log = './umls_log_files/'
+    with open('umls_data/test_type_count.pkl', 'rb') as f:
+        b = pickle.load(f)
+
+    final_test_dict = {}
+    final_auc_dict = {}
+    total_F1_num = np.zeros(3)
+    example_f1s = []
+
+    for i in range(10, 20):
+        cv_id = i % 10
+
+        cv = str(i)
+
+        test_dict, test_F1_num, auc_dict = get_one_CV_results_test_F1s(folder, folder_log, model_string, flag_string, cv)
+
+        final_test_dict.update(test_dict)
+        final_auc_dict.update(auc_dict)
+        total_F1_num += test_F1_num
+        log_file_path = folder_log + model_string + flag_string + cv + '.txt'
+        example_f1s.append(parse_results.tail(log_file_path, 2)[0][0])
+
+
+    count_sum = 0
+    for k in final_test_dict:
+        count_sum += b[int(k)][1]
+
+    type_F1_weighted = 0.0
+    for k in final_test_dict:
+        type_F1_weighted += (b[int(k)][1]/count_sum) * final_test_dict[k]
+
+
+    print('MSH-WSD OTyper type weighted average Macro {}'.format(type_F1_weighted))
+    precision = total_F1_num[0] / total_F1_num[1]
+    recall = total_F1_num[0] / total_F1_num[2]
+    print('MSH-WSD OTyper type micro {}'.format(evaluate.f1(precision, recall)))
+
+    auc_array = []
+    for  k in final_auc_dict:
+        auc_array.append((b[int(k)][1]/count_sum) * final_auc_dict[k])
+    print('MSH-WSD OTyper Average type auc = {}'.format(np.sum(auc_array)))
+
+
+
 
 
 def get_type_sum_sim(test_type_id, seen_type_ids):
@@ -363,4 +414,6 @@ if __name__ == "__main__":
     # temp()
     # get_top_bot_performance()
     # get_single_log_file_results(10)
-    get_CV_results()
+    # get_CV_results()
+    # get_single_log_file_results_umls(2)
+    get_CV_results_msh()
