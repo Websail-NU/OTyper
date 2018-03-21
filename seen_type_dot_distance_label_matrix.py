@@ -20,6 +20,11 @@ def seen_type_dot_distance_label_matrix():
     with open(log_path, 'w') as f:
         f.write('{}\n'.format(log_head))
 
+    if not os.path.exists('log_files'):
+        os.makedirs('log_files')
+    if not os.path.exists('type_f1_file'):
+        os.makedirs('type_f1_file')
+
 # 106/7
     if id_select_flag == 0:
         test_unseen_label_ids = [1, 0, 11, 76, 18, 13, 9]

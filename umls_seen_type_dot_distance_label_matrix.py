@@ -18,6 +18,11 @@ def umls_seen_type_dot_distance_label_matrix():
     with open(log_path, 'w') as f:
         f.write('{}\n'.format(log_head))
 
+    if not os.path.exists('umls_log_files'):
+        os.makedirs('umls_log_files')
+    if not os.path.exists('umls_type_f1_file'):
+        os.makedirs('umls_type_f1_file')
+
 
     if id_select_flag == 0:
         seen_label_ids = list(range(0, 800))
