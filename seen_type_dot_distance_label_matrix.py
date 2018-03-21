@@ -17,13 +17,13 @@ def seen_type_dot_distance_label_matrix():
     model_flag, feature_flag, entity_type_feature_flag, exact_entity_type_feature_flag, \
         type_only_feature_flag, id_select_flag, log_path, log_head= my_argparse()
 
-    with open(log_path, 'w') as f:
-        f.write('{}\n'.format(log_head))
-
     if not os.path.exists('log_files'):
         os.makedirs('log_files')
     if not os.path.exists('type_f1_files'):
         os.makedirs('type_f1_files')
+
+    with open(log_path, 'w') as f:
+        f.write('{}\n'.format(log_head))
 
 # 106/7
     if id_select_flag == 0:
