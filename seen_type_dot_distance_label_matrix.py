@@ -22,8 +22,8 @@ def seen_type_dot_distance_label_matrix():
 
     if not os.path.exists('log_files'):
         os.makedirs('log_files')
-    if not os.path.exists('type_f1_file'):
-        os.makedirs('type_f1_file')
+    if not os.path.exists('type_f1_files'):
+        os.makedirs('type_f1_files')
 
 # 106/7
     if id_select_flag == 0:
@@ -266,7 +266,7 @@ def seen_type_dot_distance_label_matrix():
             type_f1_info.append(epoch_type_f1_info)
 
 
-        with open('./type_f1_file/' + log_path[12:-4] + '.pickle', 'wb') as outfile:
+        with open('./type_f1_files/' + log_path[12:-4] + '.pickle', 'wb') as outfile:
             pickle.dump(type_f1_info, outfile)
 
 

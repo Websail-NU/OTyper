@@ -20,8 +20,8 @@ def umls_seen_type_dot_distance_label_matrix():
 
     if not os.path.exists('umls_log_files'):
         os.makedirs('umls_log_files')
-    if not os.path.exists('umls_type_f1_file'):
-        os.makedirs('umls_type_f1_file')
+    if not os.path.exists('umls_type_f1_files'):
+        os.makedirs('umls_type_f1_files')
 
 
     if id_select_flag == 0:
@@ -169,7 +169,7 @@ def umls_seen_type_dot_distance_label_matrix():
             type_f1_info.append(epoch_type_f1_info)
 
 
-        with open('./umls_type_f1_file/' + log_path[17:-4] + '.pickle', 'wb') as outfile:
+        with open('./umls_type_f1_files/' + log_path[17:-4] + '.pickle', 'wb') as outfile:
             pickle.dump(type_f1_info, outfile)
         #
         #

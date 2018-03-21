@@ -11,7 +11,7 @@ import figer_data_multi_label_batcher
 
 
 def get_CV_results():
-    folder = './type_f1_file/'
+    folder = './type_f1_files/'
     model_string = 'attention_'
     flag_string = '1_0_1_1_'
     folder_log = './log_files/'
@@ -66,7 +66,7 @@ def get_CV_results():
 
 def get_CV_results_msh():
 
-    folder = './umls_type_f1_file/'
+    folder = './umls_type_f1_files/'
     model_string = 'attention_'
     flag_string = '0_0_1_0_'
     folder_log = './umls_log_files/'
@@ -133,7 +133,7 @@ def get_type_sum_sim(test_type_id, seen_type_ids):
 
 
 def get_single_log_file_results(data_id):
-    folder = './type_f1_file/'
+    folder = './type_f1_files/'
     log_folder = './log_files/'
     model_string = 'attention_'
     flag_string = '1_0_1_1_'
@@ -174,9 +174,9 @@ def get_single_log_file_results(data_id):
 
 
 def get_single_log_file_results_umls(data_id):
-    # folder = './base_line_type_f1_file/'
+    # folder = './base_line_type_f1_files/'
     # log_folder = './base_line_log_files/'
-    folder = './umls_type_f1_file/'
+    folder = './umls_type_f1_files/'
     log_folder = './umls_log_files/'
     model_string = 'attention_'
     # model_string = 'emb_sub_'
@@ -330,7 +330,7 @@ def get_top_bot_performance():
 
 def loc_error_analysis():
     dicts = joblib.load('/home/zys133/knowledge_base/NFGEC/data/Wiki/dicts_figer.pkl')
-    with open('./type_f1_file/attention_0_0_0_0_4.pickle', 'rb') as data_file:
+    with open('./type_f1_files/attention_0_0_0_0_4.pickle', 'rb') as data_file:
         data = pickle.load(data_file)
 
     print(data[4].test_scores.shape)
