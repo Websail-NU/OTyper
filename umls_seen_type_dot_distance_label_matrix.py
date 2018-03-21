@@ -94,8 +94,8 @@ def umls_seen_type_dot_distance_label_matrix():
         for epoch in range(0, 5):
             umls_train.shuffle()
             epoch_type_f1_info = data_utility.type_f1s()
-            # for i in range(0, 296):
-            for i in range(0, 2):
+            for i in range(0, 296):
+            # for i in range(0, 2):
                 batch_data = umls_train.next_batch(seen_label_ids)
 
                 feed_dict = dict(zip(train_placeholders, list(batch_data) + list([0.5]) + list([0.0])))
