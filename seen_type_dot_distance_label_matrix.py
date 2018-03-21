@@ -8,6 +8,7 @@ from sklearn.externals import joblib
 import pickle
 import argparse
 import sys
+import os
 import data_utility
 import hook
 
@@ -256,7 +257,7 @@ def seen_type_dot_distance_label_matrix():
             feed_dict = dict(zip(test_placeholders, list(batch_data) + list([0.0]) + list([0.0])))
             print_predict_y = sess.run(test_predict_y, feed_dict)
 
-            record_test_result(print_predict_y, batch_data, figer_test, test_unseen_label_ids, id_select_flag)
+            # record_test_result(print_predict_y, batch_data, figer_test, test_unseen_label_ids, id_select_flag)
 
             hook.acc_hook(print_predict_y, batch_data[-1])
             F1, test_type_f1s, test_F1_num = evaluate.acc_hook_f1_break_down(print_predict_y, batch_data[-1], epoch, 0, log_path, prior=test_prior)

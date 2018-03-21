@@ -1,3 +1,4 @@
+import argparse
 import os
 
 def run_helper(model_name, feature_flag, exact_entity_type_feature_flag, type_only_feature_flag, list_range, cmd_flag):
@@ -70,4 +71,12 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-data_flag', help='which set of data to train', choices=['FIGER','MSH'], default='FIGER')
+    args = parser.parse_args()
+    if args.data_flag == 'FIGER':
+        run_helper('attention', 1, 1, 1, range(10, 20), 'openner')
+    elif args.data_flag == 'MSH':
+        run_helper_MSH('attention', 0, 1, 0, range(10,20), 'openner')
+    else:
+        print('unknown argument')
