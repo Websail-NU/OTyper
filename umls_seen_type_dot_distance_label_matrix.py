@@ -9,7 +9,7 @@ import argparse
 import sys
 import os
 import data_utility
-
+import hook
 
 
 def umls_seen_type_dot_distance_label_matrix():
@@ -161,7 +161,7 @@ def umls_seen_type_dot_distance_label_matrix():
                 with open('temp.txt', 'w') as f:
                     f.write('testing test batch {} : {}\n'.format(i, print_loss))
 
-
+            hook.acc_hook(print_predict_y, batch_data[-1])
             F1, test_type_f1s, test_F1_num = evaluate.acc_hook_f1_break_down(predict_ys,truth_ys, epoch, 0, log_path, prior=test_prior)
             test_F1s.append(F1)
             epoch_type_f1_info.add_f1s(test_unseen_label_ids, test_type_f1s, test_F1_num, 2)
