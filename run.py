@@ -72,7 +72,7 @@ def run():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-data_flag', help='which set of data to train', choices=['FIGER','MSH'], default='FIGER')
+    parser.add_argument('data_flag', help='which set of data to train', choices=['FIGER','MSH'])
     args = parser.parse_args()
     if args.data_flag == 'FIGER':
         run_helper('attention', 1, 1, 1, range(10, 20), 'openner')

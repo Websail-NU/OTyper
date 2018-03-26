@@ -8,6 +8,7 @@ import numpy as np
 import evaluate
 from sklearn.metrics import roc_auc_score
 import figer_data_multi_label_batcher
+import argparse
 
 
 def get_CV_results():
@@ -411,9 +412,13 @@ def temp():
 
 
 if __name__ == "__main__":
-    # temp()
-    # get_top_bot_performance()
-    # get_single_log_file_results(10)
-    # get_CV_results()
-    # get_single_log_file_results_umls(2)
-    get_CV_results_msh()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('data_flag', help='which set of data to train', choices=['FIGER','MSH'])
+
+    args = parser.parse_args()
+    if args.data_flag == 'FIGER':
+        get_CV_results()
+    elif args.data_flag == 'MSH':
+        get_CV_results_msh()
+    else:
+        print('unknown argument')
