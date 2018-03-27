@@ -11,10 +11,11 @@ import figer_data_multi_label_batcher
 import argparse
 
 
-def get_CV_results():
+def get_CV_results(mention_feature, entity_type_feature, type_only_feature):
     folder = './type_f1_files/'
     model_string = 'attention_'
-    flag_string = '1_0_1_1_'
+    # flag_string = '1_0_1_1_'
+    flag_string = str(mention_feature) + '_0_' + str(entity_type_feature) + '_' + str(type_only_feature) + '_'
     folder_log = './log_files/'
     with open('FIGER_data/test_type_count.pkl', 'rb') as f:
         b = pickle.load(f)
@@ -65,11 +66,12 @@ def get_CV_results():
     #     print('{}\t{}\t{}\t{:.4f}'.format(k, dicts['id2label'][k], b[k][1], final_auc_dict[k]))
 
 
-def get_CV_results_msh():
+def get_CV_results_msh(mention_feature, entity_type_feature, type_only_feature):
 
     folder = './umls_type_f1_files/'
     model_string = 'attention_'
-    flag_string = '0_0_1_0_'
+    # flag_string = '0_0_1_0_'
+    flag_string = str(mention_feature) + '_0_' + str(entity_type_feature) + '_' + str(type_only_feature) + '_'
     folder_log = './umls_log_files/'
     with open('UMLS_data/test_type_count.pkl', 'rb') as f:
         b = pickle.load(f)
@@ -414,11 +416,18 @@ def temp():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('data_flag', help='which set of data to train', choices=['FIGER','MSH'])
+    parser.add_argument('mention_feature', help='use mention feature? 1 for on, 0 for off', type=int, choices=[0, 1])
+    parser.add_argument('entity_type_feature', help='use entity type feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
+    parser.add_argument('type_only_feature', help='use type only feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
+
+    mention_feature = args.mention_feature
+    entity_type_feature = args.entity_type_feature
+    type_only_feature = args.type_only_feature
 
     args = parser.parse_args()
     if args.data_flag == 'FIGER':
-        get_CV_results()
+        get_CV_results(mention_feature, entity_type_feature, type_only_feature)
     elif args.data_flag == 'MSH':
-        get_CV_results_msh()
+        get_CV_results_msh(mention_feature, entity_type_feature, type_only_feature)
     else:
         print('unknown argument')

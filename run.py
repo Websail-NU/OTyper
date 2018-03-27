@@ -74,9 +74,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('data_flag', help='which set of data to train', choices=['FIGER','MSH'])
 
-    parser.add_argument('-mention_feature', help='use mention feature? 1 for on, 0 for off', type=int, choices=[0, 1])
-    parser.add_argument('-entity_type_feature', help='use entity type feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
-    parser.add_argument('-type_only_feature', help='use type only feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
+    parser.add_argument('mention_feature', help='use mention feature? 1 for on, 0 for off', type=int, choices=[0, 1])
+    parser.add_argument('entity_type_feature', help='use entity type feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
+    parser.add_argument('type_only_feature', help='use type only feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
 
     args = parser.parse_args()
 
