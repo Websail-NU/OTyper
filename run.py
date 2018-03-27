@@ -73,10 +73,21 @@ def run():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('data_flag', help='which set of data to train', choices=['FIGER','MSH'])
+
+    parser.add_argument('-mention_feature', help='use mention feature? 1 for on, 0 for off', type=int, choices=[0, 1])
+    parser.add_argument('-entity_type_feature', help='use entity type feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
+    parser.add_argument('-type_only_feature', help='use type only feature?, 1 for on, 0 for off', type=int, choices=[0, 1])
+
+    mention_feature = args.mention_feature
+    entity_type_feature = args.entity_type_feature
+    type_only_feature = args.type_only_feature
+
     args = parser.parse_args()
     if args.data_flag == 'FIGER':
-        run_helper('attention', 1, 1, 1, range(10, 20), 'openner')
+        # run_helper('attention', 1, 1, 1, range(10, 20), 'openner')
+        run_helper('attention', mention_feature, entity_type_feature, type_only_feature, range(10, 20), 'openner')
     elif args.data_flag == 'MSH':
-        run_helper_MSH('attention', 0, 1, 0, range(10, 20), 'openner')
+        # run_helper_MSH('attention', 0, 1, 0, range(10, 20), 'openner')
+        run_helper_MSH('attention', mention_feature, entity_type_feature, type_only_feature, range(10, 20), 'openner')
     else:
         print('unknown argument')
