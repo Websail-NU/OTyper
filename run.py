@@ -77,6 +77,6 @@ if __name__ == "__main__":
     if args.data_flag == 'FIGER':
         run_helper('attention', 1, 1, 1, range(10, 20), 'openner')
     elif args.data_flag == 'MSH':
-        run_helper_MSH('attention', 0, 1, 0, range(10,20), 'openner')
+        run_helper_MSH('attention', 0, 1, 0, range(10, 20), 'openner')
     else:
         print('unknown argument')
