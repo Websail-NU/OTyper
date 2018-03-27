@@ -1,4 +1,4 @@
-If you use our code to do research, please cite our paper:
+If you use this code, please cite our paper:
 'OTyper: A Neural Architecture for Open Named Entity Typing' in AAAI 2018
 
 
