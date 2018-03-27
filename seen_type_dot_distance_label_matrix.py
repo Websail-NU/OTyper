@@ -77,7 +77,7 @@ def seen_type_dot_distance_label_matrix():
         test_unseen_label_ids = [0]
 # CV
     elif id_select_flag >= 10 and id_select_flag < 20:
-        train_ids, dev_ids, test_ids = get_CV_info('CV_output.txt')
+        train_ids, dev_ids, test_ids = get_CV_info('CV_output_FIGER.txt')
         cv_id = id_select_flag % 10
 
         seen_label_ids = train_ids[cv_id]
@@ -85,7 +85,7 @@ def seen_type_dot_distance_label_matrix():
         test_unseen_label_ids = test_ids[cv_id]
 # CV dev == train == all_types - test
     elif id_select_flag >= 20 and id_select_flag < 30:
-        train_ids, dev_ids, test_ids = get_CV_info('CV_output.txt')
+        train_ids, dev_ids, test_ids = get_CV_info('CV_output_FIGER.txt')
         cv_id = id_select_flag % 10
 
         seen_label_ids = train_ids[cv_id] + dev_ids[cv_id]
@@ -178,19 +178,19 @@ def seen_type_dot_distance_label_matrix():
 
 
     figer = figer_data_multi_label_batcher.figer_data_multi_label()
-    figer_test = figer_data_multi_label_batcher.figer_data_multi_label(entity_file = 'data/state_of_the_art_test_word_with_context.txt', \
-                    context_file = 'data/state_of_the_art_test_tagged_context.txt', \
-                    feature_file = 'data/state_of_the_art_test_Feature.npy', \
-                    entity_type_feature_file = 'data/state_of_the_art_test_et_features.npy',\
-                    entity_type_exact_feature_file = 'data/state_of_the_art_test_exact_et_features.npy',\
-                    type_file = 'data/state_of_the_art_test_Types_with_context.npy')
+    figer_test = figer_data_multi_label_batcher.figer_data_multi_label(entity_file = 'FIGER_data/state_of_the_art_test_word_with_context.txt', \
+                    context_file = 'FIGER_data/state_of_the_art_test_tagged_context.txt', \
+                    feature_file = 'FIGER_data/state_of_the_art_test_Feature.npy', \
+                    entity_type_feature_file = 'FIGER_data/state_of_the_art_test_et_features.npy',\
+                    entity_type_exact_feature_file = 'FIGER_data/state_of_the_art_test_exact_et_features.npy',\
+                    type_file = 'FIGER_data/state_of_the_art_test_Types_with_context.npy')
 
-    figer_dev = figer_data_multi_label_batcher.figer_data_multi_label(entity_file = 'data/state_of_the_art_dev_word_with_context.txt', \
-                    context_file = 'data/state_of_the_art_dev_tagged_context.txt', \
-                    feature_file = 'data/state_of_the_art_dev_Feature.npy', \
-                    entity_type_feature_file = 'data/state_of_the_art_dev_et_features.npy',\
-                    entity_type_exact_feature_file = 'data/state_of_the_art_dev_exact_et_features.npy',\
-                    type_file = 'data/state_of_the_art_dev_Types_with_context.npy')
+    figer_dev = figer_data_multi_label_batcher.figer_data_multi_label(entity_file = 'FIGER_data/state_of_the_art_dev_word_with_context.txt', \
+                    context_file = 'FIGER_data/state_of_the_art_dev_tagged_context.txt', \
+                    feature_file = 'FIGER_data/state_of_the_art_dev_Feature.npy', \
+                    entity_type_feature_file = 'FIGER_data/state_of_the_art_dev_et_features.npy',\
+                    entity_type_exact_feature_file = 'FIGER_data/state_of_the_art_dev_exact_et_features.npy',\
+                    type_file = 'FIGER_data/state_of_the_art_dev_Types_with_context.npy')
 
 
     training_F1s = []
@@ -362,10 +362,10 @@ feature_flag = 0, entity_type_feature_flag = 0, exact_entity_type_feature_flag =
     exact_entity_type_features = tf.placeholder(tf.float32, [None, None, 3])
     type_only_features = tf.placeholder(tf.float32, [None, None, 3])
 
-    word_emb = np.load('./data/word_emb.npy').astype(np.float32)
+    word_emb = np.load('./FIGER_data/word_emb.npy').astype(np.float32)
     word_emb_lookup_table = tf.get_variable(initializer=word_emb, dtype=tf.float32, trainable = False, name = 'word_emb_lookup_table')
 
-    label_id2emb = np.load('data/labelid2emb.npy')
+    label_id2emb = np.load('FIGER_data/labelid2emb.npy')
     if select_flag == 1:
         label_id2emb = np.take(label_id2emb, seen_label_ids, 0)
         label_id2emb_matrix = tf.constant(label_id2emb, dtype=tf.float32, name = 'train_label_id2emb_matrix')
