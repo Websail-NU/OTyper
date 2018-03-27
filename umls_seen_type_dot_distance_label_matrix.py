@@ -70,18 +70,18 @@ def umls_seen_type_dot_distance_label_matrix():
                     type_only_feature_flag=type_only_feature_flag)
 
 
-    umls_train = umls_data_batcher.umls_data_multi_label(entity_file = 'umls_data/train_refined_umls_word.txt', \
-                    context_file = 'umls_data/train_refined_umls_tagged_context.txt', \
-                    entity_type_exact_feature_file = 'umls_data/train_umls_exact_et_features.npy', \
-                    type_file = 'umls_data/train_umls_Types_with_context.npy')
-    umls_test = umls_data_batcher.umls_data_multi_label(entity_file = 'umls_data/test_refined_umls_word.txt', \
-                    context_file = 'umls_data/test_refined_umls_tagged_context.txt', \
-                    entity_type_exact_feature_file = 'umls_data/test_umls_exact_et_features.npy', \
-                    type_file = 'umls_data/test_umls_Types_with_context.npy')
-    umls_dev = umls_data_batcher.umls_data_multi_label(entity_file = 'umls_data/dev_refined_umls_word.txt', \
-                    context_file = 'umls_data/dev_refined_umls_tagged_context.txt', \
-                    entity_type_exact_feature_file = 'umls_data/dev_umls_exact_et_features.npy', \
-                    type_file = 'umls_data/dev_umls_Types_with_context.npy')
+    umls_train = umls_data_batcher.umls_data_multi_label(entity_file = 'UMLS_data/train_refined_umls_word.txt', \
+                    context_file = 'UMLS_data/train_refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'UMLS_data/train_umls_exact_et_features.npy', \
+                    type_file = 'UMLS_data/train_umls_Types_with_context.npy')
+    umls_test = umls_data_batcher.umls_data_multi_label(entity_file = 'UMLS_data/test_refined_umls_word.txt', \
+                    context_file = 'UMLS_data/test_refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'UMLS_data/test_umls_exact_et_features.npy', \
+                    type_file = 'UMLS_data/test_umls_Types_with_context.npy')
+    umls_dev = umls_data_batcher.umls_data_multi_label(entity_file = 'UMLS_data/dev_refined_umls_word.txt', \
+                    context_file = 'UMLS_data/dev_refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'UMLS_data/dev_umls_exact_et_features.npy', \
+                    type_file = 'UMLS_data/dev_umls_Types_with_context.npy')
 
 
     training_F1s = []
@@ -210,11 +210,11 @@ feature_flag = 0, entity_type_feature_flag = 0, exact_entity_type_feature_flag =
     exact_entity_type_features = tf.placeholder(tf.float32, [None, None, 3])
     type_only_features = tf.placeholder(tf.float32, [None, None, 3])
 
-    word_emb = np.load('./umls_data/umls_word_emb.npy').astype(np.float32)
+    word_emb = np.load('./UMLS_data/umls_word_emb.npy').astype(np.float32)
     word_emb_lookup_table = tf.get_variable(initializer=word_emb, dtype=tf.float32, trainable = False, name = 'word_emb_lookup_table')
 
 
-    label_id2emb = np.load('umls_data/umls_labelid2emb.npy')
+    label_id2emb = np.load('UMLS_data/umls_labelid2emb.npy')
     if select_flag == 1:
         label_id2emb = np.take(label_id2emb, seen_label_ids, 0)
         label_id2emb_matrix = tf.constant(label_id2emb, dtype=tf.float32, name = 'train_label_id2emb_matrix')

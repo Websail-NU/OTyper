@@ -12,7 +12,7 @@ class Vocabulary:
 
     def add_all(self):
         pos = 0
-        with open('umls_data/word_list.txt', 'r') as f:
+        with open('UMLS_data/word_list.txt', 'r') as f:
             for line in f.readlines():
                 line = line.replace('\n', '')
                 self._w2i[line] = pos
@@ -32,10 +32,10 @@ class Vocabulary:
 
 
 class umls_data_multi_label:
-    def __init__ (self, batch_size = 100, entity_file = 'umls_data/refined_umls_word.txt', \
-                    context_file = 'umls_data/refined_umls_tagged_context.txt', \
-                    entity_type_exact_feature_file = 'umls_data/umls_exact_et_features.npy', \
-                    type_file = 'umls_data/umls_Types_with_context.npy'):
+    def __init__ (self, batch_size = 100, entity_file = 'UMLS_data/refined_umls_word.txt', \
+                    context_file = 'UMLS_data/refined_umls_tagged_context.txt', \
+                    entity_type_exact_feature_file = 'UMLS_data/umls_exact_et_features.npy', \
+                    type_file = 'UMLS_data/umls_Types_with_context.npy'):
         self.shuffle_flag = 0
         self.vob = Vocabulary()
         self.load_data(entity_file, context_file, type_file, entity_type_exact_feature_file)
@@ -206,36 +206,6 @@ def get_an_example():
     ret = a.next_batch(list(range(0, 1387)))
 
     print(ret[-3].shape)
-
-
-def temp():
-    # with open('umls_data/all_entity_name_list_new.pkl', 'rb') as f:
-    #     l = pickle.load(f)
-    #
-    # w2v = gensim.models.KeyedVectors.load_word2vec_format('/websail/common/embeddings/glove/840B/glove.840B.300d.bin', binary=True)
-    #
-    # total_count = 0
-    # match_count = 0
-    #
-    # for e in l:
-    #     for word in e.split():
-    #         total_count += 1
-    #         if word in w2v or word.lower() in w2v:
-    #             match_count += 1
-    #
-    # print('total count = {} match count = {}'.format(total_count, match_count))
-
-    t = np.load('umls_data/umls_exact_et_features.npy')
-
-    s = set()
-    for i in range(0, t.shape[0]):
-        for j in range(0, 1387):
-            if t[i][j][0] > 0:
-                s.add(j)
-
-    print(len(s))
-
-
 
 
 if __name__ == "__main__":

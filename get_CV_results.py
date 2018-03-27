@@ -71,7 +71,7 @@ def get_CV_results_msh():
     model_string = 'attention_'
     flag_string = '0_0_1_0_'
     folder_log = './umls_log_files/'
-    with open('umls_data/test_type_count.pkl', 'rb') as f:
+    with open('UMLS_data/test_type_count.pkl', 'rb') as f:
         b = pickle.load(f)
 
     final_test_dict = {}
