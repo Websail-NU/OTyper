@@ -11,7 +11,7 @@ class Vocabulary:
 
     def add_all(self):
         pos = 0
-        with open('data/word_list.txt', 'r') as f:
+        with open('FIGER_data/word_list.txt', 'r') as f:
             for line in f.readlines():
                 line = line.replace('\n', '')
                 self._w2i[line] = pos
@@ -29,12 +29,12 @@ class Vocabulary:
 
 
 class figer_data_multi_label:
-    def __init__ (self, batch_size = 1000, entity_file = 'data/state_of_the_art_train_word_with_context.txt', \
-                    context_file = 'data/state_of_the_art_train_tagged_context.txt', \
-                    feature_file = 'data/state_of_the_art_train_Feature.npy', \
-                    entity_type_feature_file = 'data/state_of_the_art_train_et_features.npy', \
-                    entity_type_exact_feature_file = 'data/state_of_the_art_train_exact_et_features.npy', \
-                    type_file = 'data/state_of_the_art_train_Types_with_context.npy'):
+    def __init__ (self, batch_size = 1000, entity_file = 'FIGER_data/state_of_the_art_train_word_with_context.txt', \
+                    context_file = 'FIGER_data/state_of_the_art_train_tagged_context.txt', \
+                    feature_file = 'FIGER_data/state_of_the_art_train_Feature.npy', \
+                    entity_type_feature_file = 'FIGER_data/state_of_the_art_train_et_features.npy', \
+                    entity_type_exact_feature_file = 'FIGER_data/state_of_the_art_train_exact_et_features.npy', \
+                    type_file = 'FIGER_data/state_of_the_art_train_Types_with_context.npy'):
         self.shuffle_flag = 0
         self.vob = Vocabulary()
         self.load_data(entity_file, context_file, feature_file, entity_type_feature_file, entity_type_exact_feature_file, type_file)
@@ -81,7 +81,7 @@ class figer_data_multi_label:
 
         self.Exact_entity_type_features = np.load(entity_type_exact_feature_file)
 
-        self.Type_only_features = np.load('./data/webisa_type_only_features.npy')
+        self.Type_only_features = np.load('./FIGER_data/webisa_type_only_features.npy')
 
         for i in range(0, self.Type_only_features.shape[0]):
             self.Type_only_features[i][0] = np.log(self.Type_only_features[i][0]+1.0)
