@@ -16,7 +16,7 @@ def get_CV_results():
     model_string = 'attention_'
     flag_string = '1_0_1_1_'
     folder_log = './log_files/'
-    with open('data/test_type_count.pkl', 'rb') as f:
+    with open('FIGER_data/test_type_count.pkl', 'rb') as f:
         b = pickle.load(f)
 
     final_test_dict = {}
