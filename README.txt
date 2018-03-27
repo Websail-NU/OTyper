@@ -2,6 +2,11 @@ If you use our code to do research, please cite our paper:
 'OTyper: A Neural Architecture for Open Named Entity Typing' in AAAI 2018
 
 
+The data files of FIGER / MSH can be download at:
+  http://downey-n1.cs.northwestern.edu/downloads/OTyper_data_aaai18/
+  After download, put them in the same folder with the code (in OTyper).
+
+
 How to duplicate the results in paper:
   To train the model,
   run command: python run.py FIGER / python run.py MSH
@@ -11,9 +16,6 @@ How to duplicate the results in paper:
 
   Features can be set on or off by setting corresponding parameters to 1 or 0 in
   function run_helper() / run_helper_MSH()
-
-The data files can be download at:
-  
 
 
 How to make your train your own data:
@@ -38,3 +40,5 @@ How to make your train your own data:
   Test types ids for the 3rd fold-CV
   ...
   Until Nth
+
+If you have more questions, please contact me via email: zys133@eecs.northwestern.edu
