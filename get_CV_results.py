@@ -11,7 +11,7 @@ import figer_data_multi_label_batcher
 import argparse
 
 
-def get_CV_results(mention_feature, entity_type_feature, type_only_feature):
+def get_CV_results_figer(mention_feature, entity_type_feature, type_only_feature):
     folder = './type_f1_files/'
     model_string = 'attention_'
     # flag_string = '1_0_1_1_'
@@ -427,7 +427,7 @@ if __name__ == "__main__":
     type_only_feature = args.type_only_feature
 
     if args.data_flag == 'FIGER':
-        get_CV_results(mention_feature, entity_type_feature, type_only_feature)
+        get_CV_results_figer(mention_feature, entity_type_feature, type_only_feature)
     elif args.data_flag == 'MSH':
         get_CV_results_msh(mention_feature, entity_type_feature, type_only_feature)
     else:
