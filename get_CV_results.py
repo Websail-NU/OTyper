@@ -11,7 +11,7 @@ import figer_data_multi_label_batcher
 import argparse
 
 
-def get_CV_results_FIGER(mention_feature, entity_type_feature, type_only_feature):
+def get_CV_results_FIGER(mention_feature, entity_type_feature, type_only_feature, list_range):
     folder = './type_f1_files/'
     model_string = 'attention_'
     # flag_string = '1_0_1_1_'
@@ -25,7 +25,7 @@ def get_CV_results_FIGER(mention_feature, entity_type_feature, type_only_feature
     total_F1_num = np.zeros(3)
     example_f1s = []
 
-    for i in range(10, 20):
+    for i in list_range:
         cv_id = i % 10
 
         cv = str(i)
@@ -66,7 +66,7 @@ def get_CV_results_FIGER(mention_feature, entity_type_feature, type_only_feature
     #     print('{}\t{}\t{}\t{:.4f}'.format(k, dicts['id2label'][k], b[k][1], final_auc_dict[k]))
 
 
-def get_CV_results_msh(mention_feature, entity_type_feature, type_only_feature):
+def get_CV_results_MSH(mention_feature, entity_type_feature, type_only_feature, list_range):
 
     folder = './umls_type_f1_files/'
     model_string = 'attention_'
@@ -81,7 +81,7 @@ def get_CV_results_msh(mention_feature, entity_type_feature, type_only_feature):
     total_F1_num = np.zeros(3)
     example_f1s = []
 
-    for i in range(10, 20):
+    for i in list_range:
         cv_id = i % 10
 
         cv = str(i)
@@ -427,8 +427,8 @@ if __name__ == "__main__":
     type_only_feature = args.type_only_feature
 
     if args.data_flag == 'FIGER':
-        get_CV_results_FIGER(mention_feature, entity_type_feature, type_only_feature)
+        get_CV_results_FIGER(mention_feature, entity_type_feature, type_only_feature, range(10, 20))
     elif args.data_flag == 'MSH':
-        get_CV_results_msh(mention_feature, entity_type_feature, type_only_feature)
+        get_CV_results_MSH(mention_feature, entity_type_feature, type_only_feature, range(10, 20))
     else:
         print('unknown argument')
