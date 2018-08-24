@@ -3,6 +3,12 @@ This repo is the code for OTyper.
 If you use our code, please cite our paper:
 'OTyper: A Neural Architecture for Open Named Entity Typing' in AAAI 2018
 
+@inproceedings{Yuan2018OTyperAN,
+  title={OTyper: A Neural Architecture for Open Named Entity Typing},
+  author={Zheng Yuan and Doug Downey},
+  booktitle={AAAI},
+  year={2018}
+}
 
 The data files of FIGER / MSH can be download at:
   http://downey-n1.cs.northwestern.edu/downloads/OTyper_data_aaai18/
