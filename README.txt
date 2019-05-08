@@ -1,4 +1,4 @@
-Please go to AAAI-18 branch for the latest version of code.
+Please go to https://github.com/Websail-NU/OTyper/tree/AAAI-18 for the latest version of code.
 
 If you use our code to do research, please cite our paper 'OTyper: A Neural Architecture for Open Named Entity Typing' in AAAI 2018
 
